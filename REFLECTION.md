@@ -27,8 +27,10 @@
 ## 2. Kết quả đo đạc thời gian chạy Quick Sort trên 100,000 bản ghi (Measured Runtime)
 
 * **Số lượng bản ghi**: $100,000$ đối tượng `Bid` (sinh ngẫu nhiên bằng `std::mt19937` và nạp qua `loadBids`).
-* **Môi trường đo**: g++ 15.2.0 (C++17, cờ tối ưu `-O2`) trên hệ điều hành Windows.
-* **Thời gian thực thi giải thuật (`quickSortWrapper`)**: **~31 – 37 ms** (đo bằng `std::chrono::high_resolution_clock`).
+* **Môi trường đo**: g++ 15.2.0 (C++17) trên hệ điều hành Windows qua VS Code terminal.
+* **Thời gian thực thi giải thuật (`quickSortWrapper`)**:
+  - **Chế độ Debug** (không cờ tối ưu, có debug symbols): **378 ms** (ghi nhận thực tế trên terminal chụp tại `screenshot_runtime.png`).
+  - **Chế độ Release** (biên dịch cờ tối ưu `-O2`): **~31 – 44 ms** (trung bình ~37 ms).
 * **Xác minh tính đúng đắn (Verification)**: `PASSED` (Toàn bộ 100,000 phần tử đều thỏa mãn thứ tự tăng dần theo `amount`, hòa so sánh theo `timestamp`).
 
 ---
