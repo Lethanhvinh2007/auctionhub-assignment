@@ -1,72 +1,71 @@
-# BÁO CÁO ĐÁNH GIÁ VÀ TỔNG KẾT (REFLECTION.md)
-**Môn học**: Data Structures and Algorithms  
-**Dự án**: AuctionHub Sorting Practice Lab  
-**Học viên**: Lê Thanh Vinh (25110075)  
+# BÁO CÁO BÀI TẬP (REFLECTION.md)
+**Môn học**: Cấu trúc dữ liệu và Giải thuật  
+**Bài tập**: AuctionHub - Sorting Practice Lab  
+**Sinh viên**: Lê Thanh Vinh (MSSV: 25110075)  
 
 ---
 
-## 1. Biện minh thực tế cho từng giải thuật (Real-World Justification)
+## 1. Lý do lựa chọn giải thuật cho từng module thực tế
 
 * **Module A: Live Auction Monitor → Insertion Sort**  
-  Trong luồng đấu giá trực tiếp, các lượt bid đến liên tục và mỗi bid mới thường chỉ nhỉnh hơn giá trước đó một khoảng nhỏ (~0.1%), tạo ra dữ liệu gần như đã có thứ tự sẵn (nearly-sorted). Insertion Sort là lựa chọn hoàn hảo vì trên dữ liệu gần sắp xếp, nó chỉ tốn rất ít phép so sánh và dịch chuyển, đạt độ phức tạp thời gian $O(n)$ cùng $O(1)$ bộ nhớ phụ, giúp hệ thống cập nhật thứ tự tức thời với độ trễ cực thấp.
+  Trong luồng đấu giá trực tiếp, các lượt đặt giá (bid) mới gửi lên thường có xu hướng nhỉnh hơn giá trước đó một chút (~0.1%), nên dữ liệu đưa vào gần như đã có thứ tự sẵn (nearly-sorted). Insertion Sort là lựa chọn tốt nhất ở đây vì với dữ liệu gần sắp xếp, các phần tử mới chỉ cần so sánh và dịch chuyển rất ít bước, đạt thời gian chạy O(n) và tốn O(1) bộ nhớ, giúp hệ thống cập nhật giá mới ngay lập tức với độ trễ cực thấp.
 
 * **Module B: Top-K Bid Finder → Selection Sort**  
-  Đối với widget hiển thị "Top 3 Bidders", hệ thống chỉ cần trích xuất $K = 3$ giá trị lớn nhất mà không nhất thiết phải tốn chi phí sắp xếp toàn diện toàn bộ danh sách. Selection Sort tìm giá trị cực trị và đặt trực tiếp vào vị trí đích qua từng lượt, do đó khi tìm Top-$K$, giải thuật chỉ cần chạy $K$ vòng lặp ngoài với chi phí $O(K \cdot n)$ hoàn toàn tại chỗ (in-place), không phát sinh thêm bất kỳ vector hay vùng nhớ phụ nào.
+  Để hiển thị widget "Top 3 Bidders", hệ thống chỉ cần lấy ra 3 lượt bid cao nhất chứ không cần tốn công sắp xếp toàn bộ danh sách. Selection Sort mỗi lượt quét sẽ tìm phần tử lớn nhất đưa về đúng vị trí đầu, do đó để lấy Top 3 ta chỉ cần chạy đúng 3 vòng lặp ngoài. Thuật toán chạy trực tiếp trên mảng hiện có (in-place) với chi phí O(K * n), hoàn toàn không cần cấp phát thêm vector phụ nào.
 
 * **Module C: Price Anomaly Validator → Interchange Sort**  
-  Module kiểm thử QA chỉ làm việc với các lô dữ liệu kích thước rất nhỏ ($\le 50$ bản ghi) trước khi lưu vào database. Với $n \le 50$, tổng số phép duyệt và hoán vị tối đa chỉ khoảng 2,500 phép toán (thực thi trong tích tắc dưới 1 ms), do đó độ phức tạp lý thuyết $O(n^2)$ không hề là điểm nghẽn, trong khi Interchange Sort có cấu trúc mã nguồn ngắn gọn, trực quan, dễ kiểm toán mã (code audit) và không có nguy cơ tràn ngăn xếp như giải thuật đệ quy.
+  Công cụ kiểm tra lỗi giá chỉ chạy trên các đợt dữ liệu nhỏ (tối đa 50 bản ghi) trước khi lưu vào cơ sở dữ liệu. Với kích thước nhỏ (n <= 50), chi phí O(n^2) cũng chỉ tốn tối đa khoảng 2500 phép so sánh và chạy trong chưa đầy 1 ms. Điểm mạnh của Interchange Sort là code rất ngắn gọn, trực quan, dễ rà soát lỗi và không có nguy cơ tràn bộ nhớ như các thuật toán đệ quy phức tạp.
 
 * **Module D: Stabilization Detector → Bubble Sort (Early Stop)**  
-  Mục tiêu của module là phát hiện xem cửa sổ giá 10 phút đã ổn định (không còn biến động giá nào) hay chưa. Bubble Sort có cờ dừng sớm (`swapped`) kiểm tra ngay lượt duyệt đầu tiên: nếu không có bất kỳ cặp phần tử nghịch thế nào cần đổi chỗ trên toàn bộ mảng, hàm lập tức kết luận mảng đã đạt trạng thái ổn định (`STABLE`) chỉ với đúng 1 lượt duyệt $O(n)$.
+  Mục đích của module này là phát hiện xem luồng giá trong 10 phút đã ổn định (không còn biến động) hay chưa. Bubble Sort có cờ kiểm tra tráo đổi (swapped flag) nên nếu dữ liệu vốn đã được sắp xếp từ trước, thuật toán sẽ không thực hiện lần swap nào trong lượt duyệt đầu tiên và dừng ngay lập tức, trả về trạng thái STABLE chỉ sau đúng 1 lần quét O(n).
 
 * **Module E: Full Historical Sorter → Quick Sort**  
-  Báo cáo thống kê cuối ngày cần tổng hợp và sắp xếp hàng triệu bản ghi đấu giá lịch sử, đòi hỏi giải thuật phải tối ưu hóa triệt để tốc độ và tận dụng bộ nhớ đệm (cache locality). Quick Sort có chi phí trung bình $O(n \log n)$ với hệ số hằng số ẩn (constant factor) rất nhỏ, kết hợp chiến lược chọn pivot `median-of-three` giúp triệt tiêu nguy cơ rơi vào phân hoạch suy biến trên dữ liệu thực tế.
+  Báo cáo tổng kết cuối ngày phải xử lý hàng triệu bản ghi lịch sử đấu giá nên hiệu năng là ưu tiên hàng đầu. Quick Sort có thời gian chạy trung bình O(n log n) rất nhanh và tận dụng bộ nhớ đệm tốt. Việc kết hợp thêm kỹ thuật chọn pivot lấy trung vị 3 phần tử (median-of-three) giúp giải thuật tránh bị rơi vào trường hợp chạy chậm O(n^2) khi gặp dữ liệu đã có thứ tự từ trước.
 
 ---
 
-## 2. Kết quả đo đạc thời gian chạy Quick Sort trên 100,000 bản ghi (Measured Runtime)
+## 2. Kết quả đo đạc thời gian chạy Quick Sort trên 100,000 bản ghi
 
-* **Số lượng bản ghi**: $100,000$ đối tượng `Bid` (sinh ngẫu nhiên bằng `std::mt19937` và nạp qua `loadBids`).
-* **Môi trường đo**: g++ 15.2.0 (C++17) trên hệ điều hành Windows qua VS Code terminal.
-* **Thời gian thực thi giải thuật (`quickSortWrapper`)**:
-  - **Chế độ Debug** (không cờ tối ưu, có debug symbols): **378 ms** (ghi nhận thực tế trên terminal chụp tại `screenshot_runtime.png`).
-  - **Chế độ Release** (biên dịch cờ tối ưu `-O2`): **~31 – 44 ms** (trung bình ~37 ms).
-* **Xác minh tính đúng đắn (Verification)**: `PASSED` (Toàn bộ 100,000 phần tử đều thỏa mãn thứ tự tăng dần theo `amount`, hòa so sánh theo `timestamp`).
+* **Dữ liệu kiểm thử**: 100,000 bản ghi Bid (sinh ngẫu nhiên bằng mt19937).
+* **Môi trường chạy**: Trình biên dịch g++ 15.2.0 (C++17) trên Windows, chạy qua VS Code terminal.
+* **Thời gian đo được**:
+  - **Chạy ở chế độ Debug (VS Code Task outDebug.exe)**: khoảng **378 ms** (kết quả hiển thị trong ảnh screenshot_runtime.png).
+  - **Chạy khi biên dịch cờ tối ưu (-O2)**: chỉ mất khoảng **31 - 44 ms** (trung bình ~37 ms).
+* **Kiểm tra tính đúng đắn (Verification)**: `PASSED` (toàn bộ 100,000 phần tử đều đúng thứ tự tăng dần theo giá amount, nếu trùng giá thì so tiếp timestamp tăng dần).
 
 ---
 
-## 3. Phân tích lỗi gặp phải và cách chẩn đoán (Bug Encountered & Diagnosis)
+## 3. Lỗi gặp phải trong quá trình làm bài và cách khắc phục
 
-* **Hiện tượng Bug**:  
-  Khi lần đầu chạy thử nghiệm Task E với $N = 100,000$, chương trình in ra thời gian chạy là `0 ms` và dòng kiểm tra in ra `Verification: PASSED` một cách bất thường.
+* **Lỗi gặp phải**:  
+  Lúc đầu khi chạy thử Task E với 100,000 phần tử, chương trình chạy xong ngay lập tức và in thời gian là `0 ms`, sau đó dòng kiểm tra in `Verification: PASSED` rất bất thường.
 * **Nguyên nhân**:  
-  Khi rà soát lại hàm `main()`, tôi nhận thấy mình chỉ khai báo `largeBids.reserve(N);`. Hàm `reserve()` trong C++ STL chỉ cấp phát trước dung lượng vùng nhớ đệm (capacity) chứ không làm thay đổi kích thước thực tế của vector (`size()` vẫn bằng 0). Do vector rỗng, hàm `quickSortWrapper` không chạy phân hoạch nào, và vòng lặp kiểm tra `for (size_t i = 1; i < largeBids.size(); ++i)` bị bỏ qua, dẫn đến thông báo pass ảo.
+  Khi xem lại hàm `main()`, tôi thấy mình mới chỉ gọi lệnh `largeBids.reserve(N);`. Hàm `reserve` trong C++ chỉ cấp phát trước dung lượng bộ nhớ đệm chứ chưa hề thêm phần tử nào vào vector, làm cho `size()` của vector vẫn bằng 0. Vì vector rỗng nên Quick Sort không xử lý gì, và vòng lặp kiểm tra mảng cũng bị bỏ qua dẫn đến kết quả pass giả.
 * **Cách khắc phục**:  
-  Bổ sung vòng lặp sinh dữ liệu thực tế với `largeBids.push_back(...)` kết hợp các phân phối ngẫu nhiên `std::uniform_real_distribution` và `std::uniform_int_distribution`, đảm bảo vector chứa đủ 100,000 phần tử trước khi gọi Quick Sort.
+  Tôi đã viết vòng lặp dùng lệnh `largeBids.push_back(...)` kết hợp với `std::mt19937` để thực sự tạo và nạp đủ 100,000 bản ghi ngẫu nhiên vào vector. Sau khi sửa, chương trình đo được thời gian chạy thực tế 378 ms và kiểm tra thứ tự thành công.
 
 ---
 
-## 4. Ba câu hỏi đã tham khảo từ LLM và phân loại (Prompt Discipline)
+## 4. Ba câu hỏi đã tham khảo từ AI và phân loại theo quy định
 
 1. **Prompt 1 (Green Zone)**:  
-   *"Giải thích tại sao Insertion Sort lại đạt độ phức tạp O(n) khi dữ liệu đầu vào gần như đã có thứ tự (nearly-sorted)?"*  
-   * **Đánh giá**: **Green Zone** (Hoàn toàn hợp lệ). Câu hỏi thuần túy về mặt lý thuyết giải thuật, giúp hiểu rõ cơ chế số phép so sánh và dịch chuyển phần tử tối thiểu trong vòng lặp `while`.
+   *"Tại sao Insertion Sort lại chạy rất nhanh với độ phức tạp O(n) khi dữ liệu đầu vào gần như đã có thứ tự (nearly-sorted)?"*  
+   * **Đánh giá**: **Green Zone** (Được phép). Đây là câu hỏi lý thuyết để hiểu bản chất của thuật toán sắp xếp chèn khi số lượng phép dịch chuyển phần tử ở mức tối thiểu.
 
 2. **Prompt 2 (Green Zone)**:  
-   *"Kỹ thuật chọn pivot median-of-three trong Quick Sort hoạt động như thế nào và tại sao nó loại bỏ được trường hợp suy biến trên mảng đã sắp xếp?"*  
-   * **Đánh giá**: **Green Zone** (Hoàn toàn hợp lệ). Câu hỏi hỗ trợ hiểu bản chất phân hoạch và toán học của thuật toán, hỗ trợ tự viết logic cho hàm `medianOfThree`.
+   *"Kỹ thuật chọn pivot median-of-three trong Quick Sort hoạt động thế nào và nó giúp tránh trường hợp xấu nhất ra sao?"*  
+   * **Đánh giá**: **Green Zone** (Được phép). Câu hỏi giúp tìm hiểu nguyên lý toán học và cách phân hoạch để tự tay viết code cho hàm `medianOfThree`.
 
 3. **Prompt 3 (Yellow Zone)**:  
-   *"Cho tôi ví dụ snippet code C++ sử dụng std::mt19937 và uniform_real_distribution để sinh số thực ngẫu nhiên trong khoảng từ 1.0 đến 10000.0."*  
-   * **Đánh giá**: **Yellow Zone** (Thận trọng - Được phép theo quy định đề bài). Đây là câu hỏi cú pháp thư viện tiện ích (utility) để chuẩn bị dữ liệu kiểm thử, không can thiệp vào mã logic của 5 thuật toán chính.
+   *"Cho mình xin đoạn code mẫu C++ dùng std::mt19937 và uniform_real_distribution để sinh số thực ngẫu nhiên từ 1.0 đến 10000.0."*  
+   * **Đánh giá**: **Yellow Zone** (Được phép ở mức độ công cụ phụ trợ). Đây chỉ là câu hỏi về cú pháp thư viện sinh dữ liệu test ngẫu nhiên, không hỏi code giải thuật chính của bài tập.
 
 ---
 
-## 5. Phân tích độ phức tạp trường hợp xấu nhất của Quick Sort với Median-of-Three
+## 5. Phân tích trường hợp xấu nhất của Quick Sort khi dùng Median-of-Three
 
-* **Độ phức tạp worst-case**: Vẫn là **$O(n^2)$**.
+* **Độ phức tạp worst-case**: Vẫn là **O(n^2)**.
 * **Giải thích nguyên nhân**:
-  1. **Bản chất phép lấy mẫu cục bộ**: Chiến lược `median-of-three` chỉ lấy trung vị của đúng 3 phần tử (đầu mảng `lo`, giữa mảng `mid`, và cuối mảng `hi`). Đối với tập dữ liệu lớn, giá trị trung vị của 3 phần tử này hoàn toàn có thể không phản ánh đúng trung vị thực sự của toàn bộ mảng con.
-  2. **Tập dữ liệu đối kháng (Adversarial Input)**: Một đối thủ có thể chủ động tạo ra một chuỗi dữ liệu đặc thù (được gọi là *median-of-three killer sequence*, được nhà khoa học máy tính David Musser công bố), trong đó tại mỗi tầng phân hoạch đệ quy, trung vị của 3 điểm được chọn luôn rơi vào phần tử cực tiểu hoặc cực đại của mảng con. Khi đó, mỗi bước phân hoạch chỉ loại bỏ được 1 hoặc 2 phần tử, khiến độ sâu đệ quy đạt $O(n)$ và tổng thời gian là $O(n^2)$.
-  3. **Trường hợp mảng chứa nhiều khóa trùng nhau (Duplicate Keys)**: Khi toàn bộ dữ liệu có cùng một giá trị, kỹ thuật phân hoạch Lomuto (so sánh `<= pivot`) sẽ dồn tất cả phần tử về một phía, gây mất cân bằng tối đa và suy biến về $O(n^2)$.
-* **Kết luận**: `median-of-three` giải quyết triệt để trường hợp xấu nhất phổ biến trong thực tế (mảng đã sắp xếp sẵn hoặc đảo ngược hoàn toàn), nhưng về mặt toán học lý thuyết, nó **không thể** đảm bảo chặn trên $O(n \log n)$ trong mọi trường hợp (muốn đảm bảo tuyệt đối cần dùng giải thuật hybrid như IntroSort để chuyển sang HeapSort khi đệ quy quá sâu).
+  1. **Hạn chế của việc lấy mẫu 3 điểm**: Median-of-three chỉ chọn trung vị của đúng 3 phần tử (đầu, giữa, cuối). Dù cách này giải quyết được trường hợp mảng đã tăng dần hoặc giảm dần sẵn, nhưng nếu mảng có thứ tự đặc biệt sao cho trung vị của 3 điểm này vẫn là phần tử nhỏ nhất hoặc lớn nhất của đoạn đang xét, phân hoạch vẫn bị lệch hoàn toàn (một bên 0 phần tử, một bên n - 1 phần tử), khiến độ sâu đệ quy đạt O(n) và tổng thời gian là O(n^2).
+  2. **Trường hợp các phần tử trùng giá trị (Duplicate Keys)**: Nếu mảng chứa nhiều phần tử có giá trị bằng nhau, cách phân hoạch Lomuto vẫn sẽ dồn các phần tử về một phía, dẫn đến việc chia mảng không đều và hiệu năng bị suy giảm về O(n^2).
+* **Kết luận**: Kỹ thuật median-of-three giúp Quick Sort chạy rất nhanh và ổn định trong hầu hết các bài toán thực tế, nhưng về mặt lý thuyết toán học thì nó vẫn chưa thể đảm bảo 100% không bị rơi vào O(n^2).
