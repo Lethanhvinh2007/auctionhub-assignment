@@ -54,7 +54,8 @@ bool loadBids(const string& path, vector<Bid>& out) {
 }
 
 // ---------- TODO: Implement these ----------
-// Task A
+
+// Task A - Insertion Sort (Live Auction Monitor)
 void insertionSort(vector<Bid>& v){
     int n =static_cast<int>(v.size()); // int n = (int)v.size();
     //Tại đây là duyệt từ phần tử thứ hai trở đi
@@ -68,6 +69,8 @@ void insertionSort(vector<Bid>& v){
         v[j+1]= key; //chèn key vào đúng vị trí tìm được
     }
 }          
+
+// Task B - Selection Sort (Top-K Bid Finder)
 void selectionSort(vector<Bid>& v){
     int n = static_cast<int>(v.size()); 
     for(int i=0;i<n-1;i++){
@@ -91,10 +94,9 @@ void selectionSort(vector<Bid>& v){
         cout<< "  " << (i + 1) << ". [" << v[i].bidderId<< "] $"<< v[i].amount<< " @ "<< v[i].timestamp << "\n";
     }
 
+}
 
-};          // Task B
-
-//Task C — Interchange Sort (Price Anomaly Validator)
+// Task C - Interchange Sort (Price Anomaly Validator)
 void interchangeSort(vector<Bid>& v){
     int n = static_cast<int>(v.size());
     long long solanswap = 0;
@@ -110,6 +112,8 @@ void interchangeSort(vector<Bid>& v){
     }
     cout<<"Interchange sort total swaps : "<<solanswap<<endl;
 }    
+
+// Task D - Bubble Sort with Early Stop (Stabilization Detector)
 bool bubbleSortEarlyStop(vector<Bid>& v){
     int n = static_cast<int>(v.size());
     bool stable = true; //giả sử ban đầu ổn định
@@ -136,9 +140,9 @@ bool bubbleSortEarlyStop(vector<Bid>& v){
     }
     return stable;
 
+}
 
-}   // Task D — returns true if stable (no swaps on a full pass)
-
+// Task E - Quick Sort (Full Historical Sorter)
 void medianOfThree(vector<Bid>& v, int lo, int hi){
     //Tại đây là tìm trung vị trong 3 vị trí đầu, giữa, cuối
     int mid = lo + (hi-lo)/2;
@@ -176,14 +180,13 @@ int partition(vector<Bid>& v, int lo, int hi){
     
 }
 
-
 void quickSort(vector<Bid>& v, int lo, int hi){
     if(lo<hi){
         int p = partition(v,lo,hi);
         quickSort(v,lo,p-1); //đệ quy bên trái (phần nhỏ)
         quickSort(v,p+1,hi); // đệ quy bên phải (phần lớn)
     }
-}// Task E
+}
 
 void quickSortWrapper(vector<Bid>& v){
     //Hàm bọc gọi nhanh quickSort cho cả mảng
