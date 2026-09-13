@@ -62,6 +62,7 @@ void insertionSort(vector<Bid>& v){
     for(int i=1;i<n;i++){
         Bid key = v[i];
         int j =i-1;
+        //lùi dần j để tìm vị trí thích hợp cho key (khi phần tử trước lớn hơn key)
         while(j>=0 && isLess(key,v[j])){
             v[j+1] = v[j];  //Dịch các phần tử lớn hơn key sang bên phải
             --j;
@@ -74,9 +75,10 @@ void insertionSort(vector<Bid>& v){
 void selectionSort(vector<Bid>& v){
     int n = static_cast<int>(v.size()); 
     for(int i=0;i<n-1;i++){
-        int idxMax=i;
+        int idxMax=i; //giả sử phần tử tại vị trí i đang có giá lớn nhất
         //sắp xếp giảm dần descending theo amount
         for(int j=i+1;j<n;j++){
+            //nếu tìm thấy bid có giá lớn hơn giá tại idxMax thì ghi nhận lại
             if(v[j].amount>v[idxMax].amount){
                 idxMax = j; //cập nhật vị trí lớn nhất
             }
@@ -104,6 +106,7 @@ void interchangeSort(vector<Bid>& v){
     //So sánh từng cặp, sai thứ tự thì đổi chỗ liền
     for(int i=0;i<n-1;i++){
         for(int j=i+1;j<n;j++){
+            //nếu phần tử đứng sau có giá nhỏ hơn phần tử ở i thì đổi chỗ ngay
             if(v[j].amount<v[i].amount){
                 swap(v[j],v[i]);
                 solanswap++; //tăng số lần swap
@@ -120,8 +123,8 @@ bool bubbleSortEarlyStop(vector<Bid>& v){
 
     for(int i=0;i<n-1;i++){
         bool ISswap = false; //giả sử chưa swap
-        for(int j = 0;j<n-i-1;j++){
-            if(v[j].amount>v[j+1].amount){
+        for(int j = 0;j<n-i-1;j++){ //duyệt qua từng cặp liền kề chưa ổn định
+            if(v[j].amount>v[j+1].amount){ //nếu phần tử trước lớn hơn phần tử sau
                 swap(v[j],v[j+1]); //Nếu sai thứ tự thì đổi chỗ
                 ISswap=true; //đánh dấu là có swap xảy ra
             }
@@ -177,7 +180,7 @@ int partition(vector<Bid>& v, int lo, int hi){
         }
     }
     swap(v[i+1],v[hi]); //đưa pivot về đúng giữa hai vùng
-    return i+1;
+    return i+1; //trả về vị trí của pivot sau khi đã phân hoạch xong
     
 }
 
@@ -211,7 +214,7 @@ int main(int argc, char* argv[]) {
     }
 
     cout << "TASK A: INSERTION SORT \n";
-    vector<Bid> vA = smallBids;
+    vector<Bid> vA = smallBids; //sao chép mảng mẫu ra để test Task A (tránh làm thay đổi mảng gốc)
     insertionSort(vA);
     cout << "Sorted ascending by amount (tie-break timestamp):\n";
     printBids(vA);
@@ -264,9 +267,10 @@ int main(int argc, char* argv[]) {
     // Kiểm tra tính đúng đắn của thứ tự sau sắp xếp
     bool isSorted = true;
     for (size_t i = 1; i < largeBids.size(); ++i) {
+        //nếu phát hiện phần tử sau nhỏ hơn phần tử trước nghĩa là sắp xếp bị sai
         if (isLess(largeBids[i], largeBids[i - 1])) {
             isSorted = false;
-            break;
+            break; //dừng kiểm tra ngay
         }
     }
     cout << "Verification: " << (isSorted ? "PASSED (Array is correctly sorted)" : "FAILED") << "\n";
