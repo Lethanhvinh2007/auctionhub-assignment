@@ -23,11 +23,11 @@ struct Bid {
 
 #pragma region isLess
 bool isLess(const Bid&  a, const Bid& b){
-    //Tại đây là so sánh giá tiền trước
+    //So sánh theo giá tiền (amount) trước
     if( a.amount != b.amount){
         return a.amount < b.amount;
     }
-    //nếu giá bằng nhau thì ai bid trước xếp trước
+    //nếu giá bằng nhau thì ai bid trước (timestamp nhỏ hơn) xếp trước
     return a.timestamp<b.timestamp;
 }
 
@@ -42,7 +42,7 @@ void printBids(const vector<Bid>& v, size_t limit = 10) {
 }   
 
 bool loadBids(const string& path, vector<Bid>& out) {
-    //Tại đây là đọc file dữ liệu từ đường dẫn
+    //Mở file và nạp danh sách bids
     ifstream f(path);
     if (!f) return false;
     Bid b;
@@ -58,7 +58,7 @@ bool loadBids(const string& path, vector<Bid>& out) {
 // Task A - Insertion Sort (Live Auction Monitor)
 void insertionSort(vector<Bid>& v){
     int n =static_cast<int>(v.size()); // int n = (int)v.size();
-    //Tại đây là duyệt từ phần tử thứ hai trở đi
+    //Lấy từng phần tử từ vị trí 1 để tìm chỗ chèn thích hợp
     for(int i=1;i<n;i++){
         Bid key = v[i];
         int j =i-1;
@@ -88,7 +88,7 @@ void selectionSort(vector<Bid>& v){
 
     }
 
-    //Tại đây là in ra top 3 người trả giá cao nhất
+    //In ra top 3 người trả giá cao nhất sau khi đã xếp giảm dần
     cout<<"Top 3 Bidders ( highest amount):\n";
     for(size_t i = 0;i< min(v.size(),(size_t)3);i++){
         cout<< "  " << (i + 1) << ". [" << v[i].bidderId<< "] $"<< v[i].amount<< " @ "<< v[i].timestamp << "\n";
@@ -101,7 +101,7 @@ void interchangeSort(vector<Bid>& v){
     int n = static_cast<int>(v.size());
     long long solanswap = 0;
     
-    //Tại đây là so sánh từng cặp, sai thứ tự là swap liền
+    //So sánh từng cặp, sai thứ tự thì đổi chỗ liền
     for(int i=0;i<n-1;i++){
         for(int j=i+1;j<n;j++){
             if(v[j].amount<v[i].amount){
@@ -122,8 +122,8 @@ bool bubbleSortEarlyStop(vector<Bid>& v){
         bool ISswap = false; //giả sử chưa swap
         for(int j = 0;j<n-i-1;j++){
             if(v[j].amount>v[j+1].amount){
-                swap(v[j],v[j+1]);
-                ISswap=true;
+                swap(v[j],v[j+1]); //Nếu sai thứ tự thì đổi chỗ
+                ISswap=true; //đánh dấu là có swap xảy ra
             }
         }
         //nếu lượt đầu đã có swap thì chưa ổn định nên stable = false;
@@ -144,8 +144,8 @@ bool bubbleSortEarlyStop(vector<Bid>& v){
 
 // Task E - Quick Sort (Full Historical Sorter)
 void medianOfThree(vector<Bid>& v, int lo, int hi){
-    //Tại đây là tìm trung vị trong 3 vị trí đầu, giữa, cuối
-    int mid = lo + (hi-lo)/2;
+    //Tìm trung vị trong 3 vị trí đầu, giữa, cuối
+    int mid = lo + (hi-lo)/2; //tính vị trí giữa (tránh tràn số)
     if(isLess(v[mid],v[lo])){
         swap(v[lo],v[mid]);
     }
@@ -160,15 +160,16 @@ void medianOfThree(vector<Bid>& v, int lo, int hi){
 }
 
 int partition(vector<Bid>& v, int lo, int hi){
+    //Kiểm tra nếu đoạn có từ 3 phần tử trở lên thì dùng medianOfThree
     if( hi - lo >=2 ){
         medianOfThree(v,lo,hi); 
     }
     //bắt đầu phân loại các phần tử (loại nhỏ và loại lớn so với trung vị)
-    Bid pivot =v[hi];
-    int i = lo -1; //i = -1 
+    Bid pivot =v[hi]; //chọn phần tử ở cuối làm pivot
+    int i = lo -1; //chỉ số của phần tử nhỏ hơn pivot
 
     for(int j=lo;j<hi;j++){
-        //pivot >= v[j]
+        //pivot >= v[j], gom các phần tử nhỏ hơn hoặc bằng pivot sang bên trái
         if(!isLess(pivot,v[j])){
             i++;
             swap(v[i],v[j]);
@@ -182,7 +183,7 @@ int partition(vector<Bid>& v, int lo, int hi){
 
 void quickSort(vector<Bid>& v, int lo, int hi){
     if(lo<hi){
-        int p = partition(v,lo,hi);
+        int p = partition(v,lo,hi); //phân hoạch mảng và lấy vị trí pivot
         quickSort(v,lo,p-1); //đệ quy bên trái (phần nhỏ)
         quickSort(v,p+1,hi); // đệ quy bên phải (phần lớn)
     }
