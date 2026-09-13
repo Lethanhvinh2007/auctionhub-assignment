@@ -15,7 +15,7 @@ struct Bid {
     string bidderId;
     double amount;       // bid price
     long long timestamp; // Unix ms
-    int auctionId;
+    int auctionId;       // mã phiên đấu giá
 };
 
 
@@ -60,8 +60,8 @@ void insertionSort(vector<Bid>& v){
     int n =static_cast<int>(v.size()); // int n = (int)v.size();
     //Lấy từng phần tử từ vị trí 1 để tìm chỗ chèn thích hợp
     for(int i=1;i<n;i++){
-        Bid key = v[i];
-        int j =i-1;
+        Bid key = v[i]; //lưu giá trị bid cần chèn vào biến tạm
+        int j =i-1; //xét lùi từ vị trí ngay trước i
         //lùi dần j để tìm vị trí thích hợp cho key (khi phần tử trước lớn hơn key)
         while(j>=0 && isLess(key,v[j])){
             v[j+1] = v[j];  //Dịch các phần tử lớn hơn key sang bên phải
@@ -84,7 +84,7 @@ void selectionSort(vector<Bid>& v){
             }
 
         }
-        if(idxMax!=i){
+        if(idxMax!=i){ //chỉ hoán vị khi tìm được phần tử thực sự lớn hơn v[i]
             swap(v[idxMax],v[i]); //đổi chỗ phần tử lớn nhất về vị trí i
         }
 
@@ -104,11 +104,11 @@ void interchangeSort(vector<Bid>& v){
     long long solanswap = 0;
     
     //So sánh từng cặp, sai thứ tự thì đổi chỗ liền
-    for(int i=0;i<n-1;i++){
-        for(int j=i+1;j<n;j++){
+    for(int i=0;i<n-1;i++){ //cố định phần tử tại vị trí i
+        for(int j=i+1;j<n;j++){ //so với các phần tử j đứng sau nó
             //nếu phần tử đứng sau có giá nhỏ hơn phần tử ở i thì đổi chỗ ngay
             if(v[j].amount<v[i].amount){
-                swap(v[j],v[i]);
+                swap(v[j],v[i]); //đổi chỗ hai phần tử
                 solanswap++; //tăng số lần swap
             }
         }
@@ -150,13 +150,13 @@ void medianOfThree(vector<Bid>& v, int lo, int hi){
     //Tìm trung vị trong 3 vị trí đầu, giữa, cuối
     int mid = lo + (hi-lo)/2; //tính vị trí giữa (tránh tràn số)
     if(isLess(v[mid],v[lo])){
-        swap(v[lo],v[mid]);
+        swap(v[lo],v[mid]); //đảm bảo v[lo] <= v[mid]
     }
     if(isLess(v[hi],v[lo])){
-        swap(v[hi], v[lo]);
+        swap(v[hi], v[lo]); //đảm bảo v[lo] là nhỏ nhất trong 3 số
     }
     if(isLess(v[hi],v[mid])){
-        swap(v[hi],v[mid]);
+        swap(v[hi],v[mid]); //đảm bảo v[mid] <= v[hi]
     }
     // Đưa phần tử trung vị về vị trí hi để phân hoạch Lomuto
     swap(v[mid],v[hi]);
@@ -185,7 +185,7 @@ int partition(vector<Bid>& v, int lo, int hi){
 }
 
 void quickSort(vector<Bid>& v, int lo, int hi){
-    if(lo<hi){
+    if(lo<hi){ //điều kiện dừng đệ quy: đoạn mảng có từ 2 phần tử trở lên
         int p = partition(v,lo,hi); //phân hoạch mảng và lấy vị trí pivot
         quickSort(v,lo,p-1); //đệ quy bên trái (phần nhỏ)
         quickSort(v,p+1,hi); // đệ quy bên phải (phần lớn)
@@ -220,11 +220,11 @@ int main(int argc, char* argv[]) {
     printBids(vA);
 
     cout << "\nTASK B: SELECTION SORT\n";
-    vector<Bid> vB = smallBids;
+    vector<Bid> vB = smallBids; //sao chép mảng cho Task B
     selectionSort(vB);
 
     cout << "\nTASK C: INTERCHANGE SORT\n";
-    vector<Bid> vC = smallBids;
+    vector<Bid> vC = smallBids; //sao chép mảng cho Task C
     interchangeSort(vC);
     printBids(vC);
 
@@ -234,14 +234,14 @@ int main(int argc, char* argv[]) {
     bubbleSortEarlyStop(vD_stable);
 
     vector<Bid> vD_reversed = vA;
-    reverse(vD_reversed.begin(), vD_reversed.end()); // mảng đảo ngược
+    reverse(vD_reversed.begin(), vD_reversed.end()); // mảng đảo ngược để test trường hợp chưa ổn định
     cout << "Test 2 (Reversed Input):       ";
     bubbleSortEarlyStop(vD_reversed);
 
     cout << "\nTASK E: QUICKSORT (100,000 BIDS)\n";
     const int N = 100000;
     vector<Bid> largeBids;
-    largeBids.reserve(N);
+    largeBids.reserve(N); //xin trước dung lượng để tối ưu tốc độ thêm phần tử
 
     // Nạp từ test_data/large.txt hoặc sinh ngẫu nhiên bằng mt19937
     if (!loadBids("test_data/large.txt", largeBids) || (int)largeBids.size() < N) {
@@ -257,11 +257,11 @@ int main(int argc, char* argv[]) {
     }
 
     // Đo thời gian chạy bằng std::chrono
-    auto startTime = high_resolution_clock::now();
+    auto startTime = high_resolution_clock::now(); //bắt đầu bấm giờ trước khi sort
     quickSortWrapper(largeBids);
-    auto endTime = high_resolution_clock::now();
+    auto endTime = high_resolution_clock::now(); //kết thúc bấm giờ
 
-    auto durationMs = duration_cast<milliseconds>(endTime - startTime).count();
+    auto durationMs = duration_cast<milliseconds>(endTime - startTime).count(); //tính thời gian chạy ra ms
     cout << "Sorted " << N << " records using QuickSort in: " << durationMs << " ms\n";
 
     // Kiểm tra tính đúng đắn của thứ tự sau sắp xếp
